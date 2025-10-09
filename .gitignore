@@ -1,0 +1,21 @@
+# Node / Frontend
+node_modules/
+.next/
+dist/
+build/
+coverage/
+.env
+.env.*
+
+# Foundry
+out/
+cache/
+lib/
+broadcast/
+
+# OS / Editor
+.DS_Store
+*.log
+
+
+
