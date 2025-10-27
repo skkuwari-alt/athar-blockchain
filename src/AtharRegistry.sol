@@ -13,7 +13,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 contract AtharRegistry is AccessControl, Pausable, ERC721URIStorage {
     bytes32 public constant VALIDATOR_ROLE = keccak256("VALIDATOR_ROLE");
-    bytes32 public constant OPERATOR_ROLE  = keccak256("OPERATOR_ROLE");
+    bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
     struct Artifact {
         address creator;
@@ -39,13 +39,15 @@ contract AtharRegistry is AccessControl, Pausable, ERC721URIStorage {
     error ThresholdInvalid();
 
     constructor(address admin) ERC721("Athar Artifact", "ATHAR") {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
         _grantRole(OPERATOR_ROLE, admin);
     }
 
     // ----- Admin -----
     function setPaused(bool p) external onlyRole(OPERATOR_ROLE) {
-        if (p) _pause(); else _unpause();
+        if (p) _pause();
+        else _unpause();
         emit PausedSet(p);
     }
 
@@ -64,13 +66,8 @@ contract AtharRegistry is AccessControl, Pausable, ERC721URIStorage {
         id = nextId++;
         if (artifacts[id].exists) revert AlreadyRegistered();
 
-        artifacts[id] = Artifact({
-            creator: msg.sender,
-            metadataURI: metadataURI,
-            attestations: 0,
-            attested: false,
-            exists: true
-        });
+        artifacts[id] =
+            Artifact({creator: msg.sender, metadataURI: metadataURI, attestations: 0, attested: false, exists: true});
 
         _safeMint(msg.sender, id);
         _setTokenURI(id, metadataURI);
@@ -99,11 +96,11 @@ contract AtharRegistry is AccessControl, Pausable, ERC721URIStorage {
 
     // ----- Overrides -----
     function supportsInterface(bytes4 interfaceId)
-    public
-    view
-    override(AccessControl, ERC721URIStorage) 
-    returns (bool)
-{
-    return super.supportsInterface(interfaceId);
-}
+        public
+        view
+        override(AccessControl, ERC721URIStorage)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
 }

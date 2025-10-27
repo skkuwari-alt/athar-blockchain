@@ -8,13 +8,10 @@ pragma solidity ^0.8.20;
  */
 
 interface IAtharRegistry {
-    function artifacts(uint256 id) external view returns (
-        address creator,
-        string memory metadataURI,
-        uint64 attestations,
-        bool attested,
-        bool exists
-    );
+    function artifacts(uint256 id)
+        external
+        view
+        returns (address creator, string memory metadataURI, uint64 attestations, bool attested, bool exists);
 }
 
 contract AtharLicense {
@@ -47,7 +44,7 @@ contract AtharLicense {
     }
 
     function grantLicense(uint256 artifactId, address licensee) external {
-        (address creator,, , bool attested, bool exists) = registry.artifacts(artifactId);
+        (address creator,,, bool attested, bool exists) = registry.artifacts(artifactId);
         if (!exists || !attested) revert NotAttested();
         if (msg.sender != creator) revert NotCreator();
 
@@ -65,7 +62,7 @@ contract AtharLicense {
     }
 
     function revokeLicense(uint256 artifactId, address licensee) external {
-        (address creator,, , , bool exists) = registry.artifacts(artifactId);
+        (address creator,,,, bool exists) = registry.artifacts(artifactId);
         if (!exists) revert NoActiveLicense();
         if (msg.sender != creator) revert NotCreator();
 
@@ -84,7 +81,4 @@ contract AtharLicense {
         return licenses[artifactId];
     }
 }
-
-
-
 
