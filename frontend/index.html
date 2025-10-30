@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Athar — Sprint 2 Demo</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.min.js"></script>
+</head>
+<body>
+  <h2>Athar PoC Frontend (Sprint 2)</h2>
+
+  <button id="connect">Connect Wallet</button>
+  <button id="register" disabled>Register Artifact</button>
+  <button id="getArtifact" disabled>Get Artifact #0</button>
+  <button id="getLicenses" disabled>Get License Status</button>
+
+  <pre id="output">Not connected</pre>
+
+<script type="module">
+import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.min.js";
+
+const REGISTRY_ADDRESS = "0x8fB9197f26Df76093f4D9d216f50cB6A01B655E9";
+const LICENSE_ADDRESS  = "0x06DB9038847452C3D162137d5CC2302a4ee88AC8";
+
+const REGISTRY_ABI = [
+  "function register(string metadataURI) public returns(uint256)",
+  "function artifacts(uint256) public view returns(address creator, string metadataURI, uint64 attestations, bool verified, bool revoked)"
+];
+
+const LICENSE_ABI = [
+  "function getLicenses(uint256) view returns(tuple(address licensee, uint256 artifactId, bool active)[])"
+];
+
+let provider, signer, registry, license;
+const output = document.getElementById("output");
+
+function clean(obj) {
+  return JSON.parse(JSON.stringify(obj,
+    (k, v) => typeof v === "bigint" ? v.toString() : v
+  ));
+}
+
+// ✅ connect triggered only by button
+document.getElementById("connect").onclick = async () => {
+  try {
+    await window.ethereum.request({ method: "eth_requestAccounts" });
+
+    provider = new ethers.BrowserProvider(window.ethereum);
+    signer = await provider.getSigner();
+
+    registry = new ethers.Contract(REGISTRY_ADDRESS, REGISTRY_ABI, signer);
+    license  = new ethers.Contract(LICENSE_ADDRESS, LICENSE_ABI, signer);
+
+    output.textContent = "✅ Connected: " + await signer.getAddress();
+
+    document.getElementById("register").disabled = false;
+    document.getElementById("getArtifact").disabled = false;
+    document.getElementById("getLicenses").disabled = false;
+
+  } catch (err) {
+    output.textContent = "Connect failed";
+    console.error(err);
+  }
+};
+
+document.getElementById("register").onclick = async () => {
+  const tx = await registry.register("ipfs://athar-sprint2-demo-001");
+  output.textContent = "Registering... " + tx.hash;
+  await tx.wait();
+  output.textContent = "✅ Registered! " + tx.hash;
+};
+
+document.getElementById("getArtifact").onclick = async () => {
+  const data = await registry.artifacts(0);
+  output.textContent = "Artifact #0:\n" + JSON.stringify(clean(data), null, 2);
+};
+
+document.getElementById("getLicenses").onclick = async () => {
+  const list = await license.getLicenses(0);
+  output.textContent = "Licenses:\n" + JSON.stringify(clean(list), null, 2);
+};
+</script>
+
+</body>
+</html>

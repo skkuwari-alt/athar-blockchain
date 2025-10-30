@@ -17,5 +17,17 @@ broadcast/
 .DS_Store
 *.log
 
+# Sensitive
+.env
+*.env
+*.secret
+
+# Foundry broadcast & cache
+broadcast/
+cache/
+
+# Node stuff
+node_modules/
+dist/
 
 

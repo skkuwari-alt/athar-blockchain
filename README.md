@@ -1,3 +1,6 @@
+## Private keys and credentials are excluded for security.
+## Deployment config available upon request.
+
 ## Foundry
 
 **Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
