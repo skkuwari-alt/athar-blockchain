@@ -1,0 +1,4 @@
+latencyMs,gasUsed,effectiveGasPrice,txHash,blockNumber,calldataBytes,status
+4800,150608,1000000000,0xabc123...,6738123,96,Success
+5100,150608,1000000000,0xdef456...,6738124,96,Success
+5400,3230,1000000000,0xghi789...,6738125,88,Failed

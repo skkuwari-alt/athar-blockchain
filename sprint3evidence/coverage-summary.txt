@@ -1,0 +1,40 @@
+Compiling 49 files with Solc 0.8.30
+Solc 0.8.30 finished in 1.12s
+Compiler run successful with warnings:
+Warning (2018): Function state mutability can be restricted to pure
+ --> test/Dummy.t.sol:7:5:
+  |
+7 |     function test_dummy() public {
+  |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Analysing contracts...
+Running tests...
+
+Ran 1 test for test/Dummy.t.sol:DummyTest
+[PASS] test_dummy() (gas: 300)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 864.50µs (175.17µs CPU time)
+
+Ran 2 tests for test/Counter.t.sol:CounterTest
+[PASS] testFuzz_SetNumber(uint256) (runs: 256, μ: 28667, ~: 29289)
+[PASS] test_Increment() (gas: 28783)
+Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 6.51ms (5.76ms CPU time)
+
+Ran 2 test suites in 217.84ms (7.38ms CPU time): 3 tests passed, 0 failed, 0 skipped (3 total tests)
+
+╭--------------------------+---------------+---------------+---------------+---------------╮
+| File                     | % Lines       | % Statements  | % Branches    | % Funcs       |
++==========================================================================================+
+| script/Counter.s.sol     | 0.00% (0/5)   | 0.00% (0/3)   | 100.00% (0/0) | 0.00% (0/2)   |
+|--------------------------+---------------+---------------+---------------+---------------|
+| script/DeployAthar.s.sol | 0.00% (0/10)  | 0.00% (0/13)  | 100.00% (0/0) | 0.00% (0/1)   |
+|--------------------------+---------------+---------------+---------------+---------------|
+| script/HappyPath.s.sol   | 0.00% (0/16)  | 0.00% (0/16)  | 100.00% (0/0) | 0.00% (0/2)   |
+|--------------------------+---------------+---------------+---------------+---------------|
+| src/AtharLicense.sol     | 0.00% (0/30)  | 0.00% (0/38)  | 0.00% (0/6)   | 0.00% (0/5)   |
+|--------------------------+---------------+---------------+---------------+---------------|
+| src/AtharRegistry.sol    | 0.00% (0/37)  | 0.00% (0/33)  | 0.00% (0/8)   | 0.00% (0/8)   |
+|--------------------------+---------------+---------------+---------------+---------------|
+| src/Counter.sol          | 100.00% (4/4) | 100.00% (2/2) | 100.00% (0/0) | 100.00% (2/2) |
+|--------------------------+---------------+---------------+---------------+---------------|
+| Total                    | 3.92% (4/102) | 1.90% (2/105) | 0.00% (0/14)  | 10.00% (2/20) |
+╰--------------------------+---------------+---------------+---------------+---------------╯
