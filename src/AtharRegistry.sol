@@ -26,6 +26,7 @@ contract AtharRegistry is AccessControl, Pausable, ERC721URIStorage {
     uint256 public nextId;
     uint64 public attestThreshold = 2;
     mapping(uint256 => Artifact) public artifacts;
+    mapping(string => bool) private registeredMetadata;
 
     event Registered(uint256 indexed id, address indexed creator, string metadataURI);
     event Attested(uint256 indexed id, address indexed validator, uint64 count, bool thresholdReached);
@@ -63,11 +64,14 @@ contract AtharRegistry is AccessControl, Pausable, ERC721URIStorage {
 
     // ----- Core -----
     function register(string calldata metadataURI) external whenNotPaused returns (uint256 id) {
+        require(bytes(metadataURI).length != 0, "metadataURI cannot be empty");
+        if (registeredMetadata[metadataURI]) revert AlreadyRegistered();
         id = nextId++;
         if (artifacts[id].exists) revert AlreadyRegistered();
 
         artifacts[id] =
             Artifact({creator: msg.sender, metadataURI: metadataURI, attestations: 0, attested: false, exists: true});
+        registeredMetadata[metadataURI] = true;
 
         _safeMint(msg.sender, id);
         _setTokenURI(id, metadataURI);
