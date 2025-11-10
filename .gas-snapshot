@@ -1,0 +1,6 @@
+CounterTest:testFuzz_SetNumber(uint256) (runs: 256, μ: 28667, ~: 29289)
+CounterTest:test_Increment() (gas: 28783)
+DummyTest:test_dummy() (gas: 300)
+FailurePathTest:test_RevertWhen_DuplicateRegistration() (gas: 205226)
+FailurePathTest:test_RevertWhen_RegisterWithEmptyMetadata() (gas: 15377)
+FailurePathTest:test_RevertWhen_SetAttestThresholdByNonAdmin() (gas: 14477)
