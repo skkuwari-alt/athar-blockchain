@@ -1,6 +1,16 @@
 ## Private keys and credentials are excluded for security.
 ## Deployment config available upon request.
 
+# .env (placeholder)
+PRIVATE_KEY=0xREDACTED
+ADMIN_ADDRESS=0xREDACTED
+SEPOLIA_RPC_URL=REPLACE_ME
+
+# Optional additional validator addresses used during demo
+MUSEUM_ADDRESS=0xREDACTED
+CULTURE_ADDRESS=0xREDACTED
+
+
 ## Foundry
 
 **Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
