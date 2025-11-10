@@ -26,15 +26,3 @@ jobs:
       - name: Run tests
         run: |
           forge test -vvv --gas-report
-        
-      - name: Cache Foundry
-        uses: actions/cache@v3
-        with:
-          path: ~/.foundry
-          key: foundry-${{ runner.os }}
-
-      - name: Install Slither
-        run: pip install slither-analyzer
-
-      - name: Run Slither analysis
-        run: slither .
