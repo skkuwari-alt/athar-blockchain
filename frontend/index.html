@@ -1,83 +1,454 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Athar — Sprint 2 Demo</title>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Athar – Sadu Heritage Registry (Sepolia PoC)</title>
+
+  <!-- Ethers v5 UMD build (works with plain <script>) -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+  <style>
+    :root {
+      --bg-page: #f3f4f6;
+      --bg-card: #ffffff;
+      --border: #e5e7eb;
+      --text-main: #111827;
+      --text-muted: #6b7280;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --danger: #b91c1c;
+      --mono-bg: #111827;
+      --mono-text: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px 16px 40px;
+      background: var(--bg-page);
+      color: var(--text-main);
+    }
+
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 26px;
+      font-weight: 700;
+    }
+
+    header p {
+      margin: 4px 0 0;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: 14px;
+      padding: 16px 18px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 18px;
+    }
+
+    .card h3 {
+      margin-bottom: 6px;
+      font-size: 14px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 10px;
+    }
+
+    .field label {
+      font-size: 13px;
+      margin-bottom: 4px;
+      color: var(--text-muted);
+    }
+
+    .field input {
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      margin-bottom: 6px;
+    }
+
+    button {
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 14px;
+      cursor: pointer;
+      background: var(--primary);
+      color: #ffffff;
+      transition: background 0.15s ease, border-color 0.15s ease,
+        transform 0.05s ease;
+    }
+
+    button.secondary {
+      background: #f9fafb;
+      color: #111827;
+      border-color: var(--border);
+    }
+
+    button:hover:not(:disabled) {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    button.secondary:hover:not(:disabled) {
+      background: #e5e7eb;
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: default;
+      transform: none;
+    }
+
+    .status {
+      font-size: 12px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      margin-top: 8px;
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      white-space: pre-wrap;
+    }
+
+    .status.connected {
+      border-color: #22c55e;
+      background: #ecfdf3;
+      color: #166534;
+    }
+
+    .status.error {
+      border-color: var(--danger);
+      background: #fef2f2;
+      color: #991b1b;
+    }
+
+    .status.info {
+      border-color: #60a5fa;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    pre.output {
+      background: var(--mono-bg);
+      color: var(--mono-text);
+      font-size: 12px;
+      border-radius: 10px;
+      padding: 10px;
+      max-height: 220px;
+      overflow: auto;
+      margin-top: 4px;
+    }
+
+    footer {
+      margin-top: 18px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 800px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
+
 <body>
-  <h2>Athar PoC Frontend (Sprint 2)</h2>
+  <div class="page">
+    <header>
+      <h1>Athar – Sadu Heritage Registry</h1>
+      <p>Sepolia testnet PoC • Creator → Validator → License flow</p>
+    </header>
 
-  <button id="connect">Connect Wallet</button>
-  <button id="register" disabled>Register Artifact</button>
-  <button id="getArtifact" disabled>Get Artifact #0</button>
-  <button id="getLicenses" disabled>Get License Status</button>
+    <div class="grid">
+      <!-- Left column: wallet + actions -->
+      <div class="card">
+        <h2>Wallet & Actions</h2>
 
-  <pre id="output">Not connected</pre>
+        <div class="field">
+          <label>Wallet connection (MetaMask, Sepolia)</label>
+          <div class="button-row">
+            <button id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+          </div>
+          <div id="walletStatus" class="status">
+            Not connected.
+          </div>
+        </div>
 
-<script type="module">
-import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.min.js";
+        <hr style="border:none;border-top:1px solid #e5e7eb;margin:12px 0" />
 
-const REGISTRY_ADDRESS = "0x8fB9197f26Df76093f4D9d216f50cB6A01B655E9";
-const LICENSE_ADDRESS  = "0x06DB9038847452C3D162137d5CC2302a4ee88AC8";
+        <h3>Register Sadu Artifact</h3>
+        <div class="field">
+          <label>Metadata URI (IPFS or HTTPS)</label>
+          <input
+            id="metadataInput"
+            type="text"
+            placeholder="e.g. ipfs://athar-sadu-metadata-001"
+          />
+        </div>
 
-const REGISTRY_ABI = [
-  "function register(string metadataURI) public returns(uint256)",
-  "function artifacts(uint256) public view returns(address creator, string metadataURI, uint64 attestations, bool verified, bool revoked)"
-];
+        <div class="button-row">
+          <button id="registerBtn" onclick="registerArtifact()" disabled>
+            Register Artifact
+          </button>
+        </div>
 
-const LICENSE_ABI = [
-  "function getLicenses(uint256) view returns(tuple(address licensee, uint256 artifactId, bool active)[])"
-];
+        <h3>Read Artifact / License</h3>
+        <div class="field">
+          <label>Artifact ID</label>
+          <input id="artifactIdInput" type="number" min="0" value="0" />
+        </div>
 
-let provider, signer, registry, license;
-const output = document.getElementById("output");
+        <div class="button-row">
+          <button id="artifactBtn" class="secondary" onclick="getArtifact()" disabled>
+            Get Artifact
+          </button>
+          <button id="licenseBtn" class="secondary" onclick="getLicenseStatus()" disabled>
+            Get License Status
+          </button>
+        </div>
 
-function clean(obj) {
-  return JSON.parse(JSON.stringify(obj,
-    (k, v) => typeof v === "bigint" ? v.toString() : v
-  ));
-}
+        <div id="txStatus" class="status info">
+          Ready.
+        </div>
+      </div>
 
-// ✅ connect triggered only by button
-document.getElementById("connect").onclick = async () => {
-  try {
-    await window.ethereum.request({ method: "eth_requestAccounts" });
+      <!-- Right column: on-chain data -->
+      <div class="card">
+        <h2>On-Chain View</h2>
 
-    provider = new ethers.BrowserProvider(window.ethereum);
-    signer = await provider.getSigner();
+        <div>
+          <h3>Artifact</h3>
+          <pre id="artifactOutput" class="output">No artifact loaded yet.</pre>
+        </div>
 
-    registry = new ethers.Contract(REGISTRY_ADDRESS, REGISTRY_ABI, signer);
-    license  = new ethers.Contract(LICENSE_ADDRESS, LICENSE_ABI, signer);
+        <div style="margin-top: 12px;">
+          <h3>License Status</h3>
+          <pre id="licenseOutput" class="output">No license data loaded yet.</pre>
+        </div>
+      </div>
+    </div>
 
-    output.textContent = "✅ Connected: " + await signer.getAddress();
+    <footer>
+      Network: Sepolia · Project: Athar (آثار) – Cultural Heritage Preservation
+    </footer>
+  </div>
 
-    document.getElementById("register").disabled = false;
-    document.getElementById("getArtifact").disabled = false;
-    document.getElementById("getLicenses").disabled = false;
+  <script>
+    // Contract addresses – replace with your deployed contract addresses
+    const REGISTRY_ADDRESS = "0xB89563848f767b5eF42dBe957a4176153aD89cD1";
+    const LICENSE_ADDRESS = "0xB79d2c8AE711bC6b3ad844F0F0c5d2976627cD6B";
 
-  } catch (err) {
-    output.textContent = "Connect failed";
-    console.error(err);
-  }
-};
+    // ABIs – must match your Solidity contracts
+    const REGISTRY_ABI = [
+      "function register(string uri) public returns (uint256)",
+      "function artifacts(uint256 id) view returns (address creator,string metadataURI,uint64 attestations,bool verified,bool exists)"
+    ];
 
-document.getElementById("register").onclick = async () => {
-  const tx = await registry.register("ipfs://athar-sprint2-demo-001");
-  output.textContent = "Registering... " + tx.hash;
-  await tx.wait();
-  output.textContent = "✅ Registered! " + tx.hash;
-};
+    const LICENSE_ABI = [
+      "function getLicenses(uint256 id) view returns (tuple(address licensee,uint256 expiry,bool active)[])"
+    ];
 
-document.getElementById("getArtifact").onclick = async () => {
-  const data = await registry.artifacts(0);
-  output.textContent = "Artifact #0:\n" + JSON.stringify(clean(data), null, 2);
-};
+    let provider, signer, registry, license;
 
-document.getElementById("getLicenses").onclick = async () => {
-  const list = await license.getLicenses(0);
-  output.textContent = "Licenses:\n" + JSON.stringify(clean(list), null, 2);
-};
-</script>
+    function setStatus(id, text, variant) {
+      const el = document.getElementById(id);
+      el.textContent = text;
+      el.className = "status" + (variant ? " " + variant : "");
+    }
 
+    async function connectWallet() {
+      try {
+        if (!window.ethereum) {
+          alert("MetaMask not detected. Please install MetaMask.");
+          return;
+        }
+
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        signer = provider.getSigner();
+
+        const account = await signer.getAddress();
+
+        registry = new ethers.Contract(REGISTRY_ADDRESS, REGISTRY_ABI, signer);
+        license = new ethers.Contract(LICENSE_ADDRESS, LICENSE_ABI, signer);
+
+        setStatus(
+          "walletStatus",
+          "Connected: " + account,
+          "connected"
+        );
+        setStatus("txStatus", "Wallet connected. Ready.", "info");
+
+        document.getElementById("registerBtn").disabled = false;
+        document.getElementById("artifactBtn").disabled = false;
+        document.getElementById("licenseBtn").disabled = false;
+      } catch (err) {
+        console.error(err);
+        setStatus(
+          "walletStatus",
+          "Connection failed. See console for details.",
+          "error"
+        );
+      }
+    }
+
+    async function registerArtifact() {
+      if (!registry) {
+        setStatus("txStatus", "Connect your wallet first.", "error");
+        return;
+      }
+
+      const uriInput = document
+        .getElementById("metadataInput")
+        .value.trim();
+
+      if (!uriInput) {
+        setStatus("txStatus", "Please enter a metadata URI (IPFS or HTTPS).", "error");
+        return;
+      }
+
+      try {
+        setStatus("txStatus", "Submitting register() transaction…", "info");
+        const tx = await registry.register(uriInput);
+        await tx.wait();
+        setStatus(
+          "txStatus",
+          "Artifact registered on Sepolia.\nTx hash: " + tx.hash,
+          "connected"
+        );
+      } catch (err) {
+        console.error(err);
+        setStatus(
+          "txStatus",
+          "Register failed. See console for details.",
+          "error"
+        );
+      }
+    }
+
+    async function getArtifact() {
+      if (!registry) {
+        setStatus("txStatus", "Connect your wallet first.", "error");
+        return;
+      }
+
+      const idVal = parseInt(
+        document.getElementById("artifactIdInput").value || "0",
+        10
+      );
+      if (isNaN(idVal) || idVal < 0) {
+        setStatus("txStatus", "Artifact ID must be a non-negative number.", "error");
+        return;
+      }
+
+      try {
+        setStatus("txStatus", "Reading artifact " + idVal + "…", "info");
+        const result = await registry.artifacts(idVal);
+        const [creator, uri, attestations, verified, exists] = result;
+
+        document.getElementById("artifactOutput").textContent =
+          "id: " + idVal +
+          "\ncreator: " + creator +
+          "\nmetadataURI: " + uri +
+          "\nattestations: " + attestations +
+          "\nverified: " + verified +
+          "\nexists: " + exists;
+
+        setStatus("txStatus", "Artifact loaded from chain.", "connected");
+      } catch (err) {
+        console.error(err);
+        setStatus(
+          "txStatus",
+          "Failed to read artifact. Check ID or contract address.",
+          "error"
+        );
+      }
+    }
+
+    async function getLicenseStatus() {
+      if (!license) {
+        setStatus("txStatus", "Connect your wallet first.", "error");
+        return;
+      }
+
+      const idVal = parseInt(
+        document.getElementById("artifactIdInput").value || "0",
+        10
+      );
+      if (isNaN(idVal) || idVal < 0) {
+        setStatus("txStatus", "Artifact ID must be a non-negative number.", "error");
+        return;
+      }
+
+      try {
+        setStatus("txStatus", "Reading license status for artifact " + idVal + "…", "info");
+        const licenses = await license.getLicenses(idVal);
+
+        document.getElementById("licenseOutput").textContent =
+          licenses.length === 0
+            ? "No licenses found for artifact " + idVal + "."
+            : JSON.stringify(licenses, null, 2);
+
+        setStatus("txStatus", "License status loaded.", "connected");
+      } catch (err) {
+        console.error(err);
+        setStatus(
+          "txStatus",
+          "Failed to read license status. Check ID or contract address.",
+          "error"
+        );
+      }
+    }
+  </script>
 </body>
 </html>
