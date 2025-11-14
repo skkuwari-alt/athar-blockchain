@@ -11,16 +11,24 @@ contract DeployAthar is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         address admin = vm.envAddress("ADMIN_ADDRESS");
+        address museum = vm.envAddress("MUSEUM_ADDRESS");
+        address culture = vm.envAddress("CULTURE_ADDRESS");
 
+        // Deploy both contracts
         AtharRegistry registry = new AtharRegistry(admin);
         AtharLicense license = new AtharLicense(address(registry));
 
-        registry.grantValidator(admin);
+        // Assign roles properly
+        registry.grantRole(registry.QM_VALIDATOR(), museum);
+        registry.grantRole(registry.MOC_VALIDATOR(), culture);
+        registry.grantRole(registry.OPERATOR_ROLE(), admin);
 
         vm.stopBroadcast();
 
-        console2.log(" AtharRegistry deployed at:", address(registry));
-        console2.log(" AtharLicense deployed at:", address(license));
+        console2.log("AtharRegistry deployed at:", address(registry));
+        console2.log("AtharLicense deployed at:", address(license));
+        console2.log("QM Validator:", museum);
+        console2.log("MoC Validator:", culture);
+        console2.log("Admin:", admin);
     }
 }
-
