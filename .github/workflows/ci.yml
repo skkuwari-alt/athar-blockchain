@@ -2,9 +2,9 @@ name: Foundry Tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "**" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "**" ]
 
 jobs:
   test:
@@ -20,9 +20,7 @@ jobs:
           version: nightly
 
       - name: Install dependencies
-        run: |
-          forge install
+        run: forge install
 
       - name: Run tests
-        run: |
-          forge test -vvv --gas-report
+        run: forge test -vvv --gas-report
