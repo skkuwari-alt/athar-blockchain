@@ -8,7 +8,7 @@ import "../src/AtharLicense.sol";
 /**
  * @title HappyPath
  * @notice Simulates the full lifecycle:
- * Creator registers -> Validator attests -> License granted
+ * Creator registers → Museum & Culture approve → License granted
  */
 contract HappyPath is Script {
     AtharRegistry registry;
@@ -20,29 +20,28 @@ contract HappyPath is Script {
     }
 
     function run() public {
-    vm.startBroadcast();
+        // Step 1: Creator registers artifact
+        vm.startBroadcast();
+        uint256 tokenId = registry.register("ipfs://athar-sadu-demo-metadata");
+        console.log("Registered new artifact with ID:", tokenId);
+        vm.stopBroadcast();
 
-    // 1) Creator registers an artifact
-    uint256 tokenId = registry.register("ipfs://sadu-metadata-example");
-    console.log("Registered artifact tokenId:", tokenId);
+        // Step 2: Museum approves
+        vm.startBroadcast(vm.envUint("MUSEUM_PK"));
+        registry.approve(tokenId);
+        console.log("Museum approved artifact");
+        vm.stopBroadcast();
 
-    // ✅ Lower threshold so 1 attestation is enough for demo
-    registry.setAttestThreshold(1);
-    console.log("Threshold lowered to 1");
+        // Step 3: Ministry of Culture approves
+        vm.startBroadcast(vm.envUint("CULTURE_PK"));
+        registry.approve(tokenId);
+        console.log("Culture approved artifact");
+        vm.stopBroadcast();
 
-    // 2) Validator attests authenticity
-    registry.attest(tokenId);
-    console.log("Artifact attested by validator");
-
-    // 3) License granted
-    license.grantLicense(tokenId, msg.sender);
-    console.log("License granted to:", msg.sender);
-
-    // 4) State read
-    (, , , bool verified,) = registry.artifacts(tokenId);
-    console.log("Attested status:", verified);
-
-    vm.stopBroadcast();
-}
-
+        // Step 4: Admin grants license
+        vm.startBroadcast(vm.envUint("PRIVATE_KEY"));
+        license.grantLicense(tokenId, vm.envAddress("ADMIN_ADDRESS"));
+        console.log("License granted.");
+        vm.stopBroadcast();
+    }
 }

@@ -1,83 +1,419 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Athar — Sprint 2 Demo</title>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.min.js"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Athar — Sadu Heritage Registry</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <style>
+    :root{--bg:#f3f4f6;--card:#fff;--muted:#6b7280;--ink:#111827;--border:#e5e7eb;
+      --brand:#2563eb;--brand-dark:#1d4ed8;--good:#10b981;--bad:#dc2626;--pending:#f59e0b}
+    *{box-sizing:border-box;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    body{margin:0;background:var(--bg);color:var(--ink);padding:24px 16px 48px}
+    .page{max-width:1100px;margin:0 auto}
+    header h1{margin:0;font-size:26px;font-weight:800}
+    header p{margin:6px 0 0;color:var(--muted);font-size:14px}
+    .grid{display:grid;grid-template-columns:1fr;gap:16px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+      padding:16px 18px;box-shadow:0 10px 25px rgba(15,23,42,.08)}
+    h2{margin:0 0 10px;font-size:18px}
+    h3{margin:8px 0 6px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-size:12px}
+    input{border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;width:100%}
+    button{border:1px solid transparent;border-radius:999px;background:var(--brand);color:#fff;
+      padding:8px 14px;font-size:14px;cursor:pointer}
+    button:hover{background:var(--brand-dark)}
+    button:disabled{opacity:.55;cursor:default}
+    .status{margin-top:10px;padding:10px 14px;border-radius:10px;white-space:pre-wrap;font-size:13px;
+      border-left:4px solid var(--border);background:#f1f5f9}
+    .status.connected{background:#ecfdf5;border-left-color:var(--good)}
+    .status.error{background:#fef2f2;border-left-color:var(--bad)}
+    .status.info{background:#eff6ff;border-left-color:var(--brand)}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{padding:8px 10px;border:1px solid var(--border);text-align:left;font-size:14px}
+    th{background:#f9fafb;color:var(--muted);font-weight:600}
+    tr:nth-child(even){background:#f9fafb}
+    .hint{font-size:12px;color:var(--muted)}
+  </style>
 </head>
 <body>
-  <h2>Athar PoC Frontend (Sprint 2)</h2>
+<div class="page">
+  <header>
+    <h1>Athar — Sadu Heritage Registry</h1>
+    <p>Sepolia PoC • Creator submits • Qatar Museums & Ministry of Culture approve</p>
+  </header>
 
-  <button id="connect">Connect Wallet</button>
-  <button id="register" disabled>Register Artifact</button>
-  <button id="getArtifact" disabled>Get Artifact #0</button>
-  <button id="getLicenses" disabled>Get License Status</button>
+  <div id="creatorCard" class="card">
+    <h2>Wallet & Actions</h2>
+    <button id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+    <div id="walletStatus" class="status">Not connected.</div>
 
-  <pre id="output">Not connected</pre>
+    <hr style="border:none;border-top:1px solid var(--border);margin:12px 0"/>
 
-<script type="module">
-import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.min.js";
+    <div id="creatorSection">
+      <h3>Register Artifact (Creator)</h3>
+      <input id="metadataInput" placeholder="ipfs://athar-sadu-001.json"/>
+      <button id="registerBtn" onclick="registerArtifact()" disabled>Submit Registration</button>
+      <div class="hint">After submitting, you’ll get an Artifact ID and status below.</div>
 
-const REGISTRY_ADDRESS = "0x8fB9197f26Df76093f4D9d216f50cB6A01B655E9";
-const LICENSE_ADDRESS  = "0x06DB9038847452C3D162137d5CC2302a4ee88AC8";
+      <h3 style="margin-top:16px">My Submissions</h3>
+      <table>
+        <thead><tr><th>ID</th><th>URI</th><th>Status</th></tr></thead>
+        <tbody id="creatorBody"></tbody>
+      </table>
+      <h3 style="margin-top:24px">Check My Artifact Status</h3>
+      <div style="display:flex;gap:10px;max-width:350px">
+        <input id="lookupId" placeholder="Enter Artifact ID" />
+        <button onclick="lookupStatus()">Check Status</button>
+      </div>
+
+<div id="lookupResult" class="status info" style="margin-top:10px">
+  Enter an ID to check.
+</div>
+
+    </div>
+    
+
+    <div id="validatorSection" style="display:none">
+      <h2>Validator Dashboard</h2>
+      <p class="hint" id="valLabel">Signed in as Validator</p>
+      <h3>Pending Reviews</h3>
+      <table><thead><tr><th>ID</th><th>Creator</th><th>URI</th><th>QM</th><th>MoC</th><th>Actions</th></tr></thead>
+      <tbody id="pendingBody"></tbody></table>
+      <h3 style="margin-top:24px">Approved Artifacts</h3>
+      <table>
+        <thead><tr><th>ID</th><th>Creator</th><th>URI</th><th>Approved By</th></tr></thead>
+        <tbody id="approvedBody"></tbody>
+      </table>
+
+      <h3 style="margin-top:24px">Rejected Artifacts</h3>
+      <table>
+        <thead><tr><th>ID</th><th>Creator</th><th>URI</th><th>Rejected By</th><th>Reason</th></tr></thead>
+        <tbody id="rejectedBody"></tbody>
+      </table>
+
+    </div>
+
+    <div id="txStatus" class="status info">Ready.</div>
+  </div>
+</div>
+
+<script>
+  
+
+const REGISTRY_ADDRESS = "0x8AC07001FC2d4eEf98f19AD70D66b88085530426";
 
 const REGISTRY_ABI = [
-  "function register(string metadataURI) public returns(uint256)",
-  "function artifacts(uint256) public view returns(address creator, string metadataURI, uint64 attestations, bool verified, bool revoked)"
+  // roles / access
+  "function hasRole(bytes32,address) view returns (bool)",
+  "function QM_VALIDATOR() view returns (bytes32)",
+  "function MOC_VALIDATOR() view returns (bytes32)",
+
+  // core flows
+  "function register(string) external returns (uint256)",
+  "function approve(uint256) external",
+  "function reject(uint256,string) external",
+
+  // storage / views
+  "function nextId() view returns (uint256)",
+  "function artifacts(uint256) view returns (address creator,string metadataURI,bool exists,bool qmApproved,bool mocApproved,bool qmRejected,bool mocRejected,string qmRejectReason,string mocRejectReason,uint256 createdAt)"
 ];
 
-const LICENSE_ABI = [
-  "function getLicenses(uint256) view returns(tuple(address licensee, uint256 artifactId, bool active)[])"
-];
+let provider, signer, registry, account;
+let role = "unknown";
+let QM_ROLE, MOC_ROLE;
 
-let provider, signer, registry, license;
-const output = document.getElementById("output");
-
-function clean(obj) {
-  return JSON.parse(JSON.stringify(obj,
-    (k, v) => typeof v === "bigint" ? v.toString() : v
-  ));
+function setStatus(msg, cls = "info") {
+  const el = document.getElementById("txStatus");
+  el.textContent = msg;
+  el.className = "status " + cls;
+}
+function short(a) {
+  return a.slice(0, 6) + "…" + a.slice(-4);
 }
 
-// ✅ connect triggered only by button
-document.getElementById("connect").onclick = async () => {
+/* ------------------ WALLET ------------------ */
+async function connectWallet() {
   try {
-    await window.ethereum.request({ method: "eth_requestAccounts" });
+    if (!window.ethereum) {
+      alert("MetaMask not detected.");
+      return;
+    }
 
-    provider = new ethers.BrowserProvider(window.ethereum);
-    signer = await provider.getSigner();
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    signer = provider.getSigner();
+    account = await signer.getAddress();
 
     registry = new ethers.Contract(REGISTRY_ADDRESS, REGISTRY_ABI, signer);
-    license  = new ethers.Contract(LICENSE_ADDRESS, LICENSE_ABI, signer);
 
-    output.textContent = "✅ Connected: " + await signer.getAddress();
+    // pull role constants from chain so JS always matches Solidity
+    [QM_ROLE, MOC_ROLE] = await Promise.all([
+      registry.QM_VALIDATOR(),
+      registry.MOC_VALIDATOR()
+    ]);
 
-    document.getElementById("register").disabled = false;
-    document.getElementById("getArtifact").disabled = false;
-    document.getElementById("getLicenses").disabled = false;
+    const isQM  = await registry.hasRole(QM_ROLE, account);
+    const isMOC = await registry.hasRole(MOC_ROLE, account);
 
+    role = isQM ? "qm" : isMOC ? "moc" : "creator";
+
+    const ws = document.getElementById("walletStatus");
+    ws.textContent = `Connected: ${short(account)} | Role: ${role}`;
+    ws.className = "status connected";
+
+    document.getElementById("registerBtn").disabled = false;
+
+    // show creator vs validator views
+    if (role === "creator") {
+      document.getElementById("creatorSection").style.display = "block";
+      document.getElementById("validatorSection").style.display = "none";
+      await refreshCreatorView();
+    } else {
+      document.getElementById("creatorSection").style.display = "none";
+      document.getElementById("validatorSection").style.display = "block";
+      document.getElementById("valLabel").textContent = `Signed in as: ${role === "qm" ? "Qatar Museums" : "Ministry of Culture"}`;
+      await loadPending();
+    }
+
+    setStatus("Wallet connected. Ready.", "connected");
   } catch (err) {
-    output.textContent = "Connect failed";
     console.error(err);
+    setStatus("Wallet connection failed.", "error");
   }
-};
+}
 
-document.getElementById("register").onclick = async () => {
-  const tx = await registry.register("ipfs://athar-sprint2-demo-001");
-  output.textContent = "Registering... " + tx.hash;
-  await tx.wait();
-  output.textContent = "✅ Registered! " + tx.hash;
-};
+/* -------------- CREATOR: REGISTER + STATUS -------------- */
 
-document.getElementById("getArtifact").onclick = async () => {
-  const data = await registry.artifacts(0);
-  output.textContent = "Artifact #0:\n" + JSON.stringify(clean(data), null, 2);
-};
+function addCreatorRow(id, uri, status) {
+  const body = document.getElementById("creatorBody");
+  const row = document.createElement("tr");
+  row.innerHTML = `<td>${id}</td><td>${uri}</td><td>${status}</td>`;
+  body.appendChild(row);
+}
 
-document.getElementById("getLicenses").onclick = async () => {
-  const list = await license.getLicenses(0);
-  output.textContent = "Licenses:\n" + JSON.stringify(clean(list), null, 2);
-};
+async function registerArtifact() {
+  const uri = document.getElementById("metadataInput").value.trim();
+  if (!uri) {
+    setStatus("Enter metadata URI.", "error");
+    return;
+  }
+
+  try {
+    setStatus("Submitting register()…");
+    const tx = await registry.register(uri);
+    await tx.wait();
+
+    // new ID is nextId - 1
+    const nid = await registry.nextId();
+    const newId = nid.toNumber() - 1;
+
+    // optimistic row
+    addCreatorRow(newId, uri, "Pending");
+    const timestamp = new Date().toLocaleString();
+    setStatus(`Registered successfully.  
+    ID: ${newId}  
+    Registered at: ${timestamp}`, "connected");
+
+    document.getElementById("lookupId").value = String(newId);
+
+    // sync from chain
+    await refreshCreatorView();
+  } catch (err) {
+    console.error(err);
+    setStatus("Register failed.", "error");
+  }
+}
+
+async function refreshCreatorView() {
+  if (role !== "creator") return;
+
+  try {
+    const nextId = (await registry.nextId()).toNumber();
+    const body = document.getElementById("creatorBody");
+    body.innerHTML = "";
+
+    for (let i = 0; i < nextId; i++) {
+      const a = await registry.artifacts(i);
+      if (!a.exists) continue;
+      if (a.creator.toLowerCase() !== account.toLowerCase()) continue;
+
+      const status =
+        a.qmRejected || a.mocRejected
+          ? "Rejected"
+          : a.qmApproved && a.mocApproved
+          ? "Approved"
+          : "Pending";
+
+      const row = document.createElement("tr");
+      row.innerHTML = `<td>${i}</td><td>${a.metadataURI}</td><td>${status}</td>`;
+      body.appendChild(row);
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function lookupStatus() {
+  const idRaw = document.getElementById("lookupId").value.trim();
+  const box = document.getElementById("lookupResult");
+
+  if (!idRaw) {
+    box.textContent = "Enter an ID to check.";
+    box.className = "status info";
+    return;
+  }
+
+  const id = Number(idRaw);
+  if (Number.isNaN(id) || id < 0) {
+    box.textContent = "ID must be a non-negative number.";
+    box.className = "status error";
+    return;
+  }
+
+  try {
+    const a = await registry.artifacts(id);
+    if (!a.exists) {
+      box.textContent = `No artifact found with ID ${id}.`;
+      box.className = "status error";
+      return;
+    }
+
+    let status;
+    if (a.qmRejected || a.mocRejected) status = "Rejected";
+    else if (a.qmApproved && a.mocApproved) status = "Approved";
+    else status = "Pending";
+
+    box.textContent = `Artifact ${id} — ${status}`;
+    box.className = "status connected";
+  } catch (err) {
+    console.error(err);
+    box.textContent = "Lookup failed.";
+    box.className = "status error";
+  }
+}
+
+/* -------------- VALIDATOR: PENDING & ACTIONS -------------- */
+async function loadPending() {
+  const pendingBody = document.getElementById("pendingBody");
+  const approvedBody = document.getElementById("approvedBody");
+  const rejectedBody = document.getElementById("rejectedBody");
+
+  pendingBody.innerHTML = "";
+  approvedBody.innerHTML = "";
+  rejectedBody.innerHTML = "";
+
+  try {
+    const nextId = (await registry.nextId()).toNumber();
+
+    for (let i = 0; i < nextId; i++) {
+      const a = await registry.artifacts(i);
+      if (!a.exists) continue;
+
+      const isPending =
+        !(a.qmApproved && a.mocApproved) &&
+        !(a.qmRejected || a.mocRejected);
+
+      const isApproved = a.qmApproved && a.mocApproved;
+      const isRejected = a.qmRejected || a.mocRejected;
+
+      /* -------- Pending -------- */
+      if (isPending) {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${i}</td>
+          <td>${a.creator}</td>
+          <td>${a.metadataURI}</td>
+          <td>${a.qmApproved ? "✅" : a.qmRejected ? "❌" : "…"}</td>
+          <td>${a.mocApproved ? "✅" : a.mocRejected ? "❌" : "…"}</td>
+          <td>
+            <button onclick="approve(${i})">Approve</button>
+            <button onclick="reject(${i})">Reject</button>
+          </td>`;
+        pendingBody.appendChild(row);
+      }
+
+      /* -------- Approved -------- */
+      if (isApproved) {
+        const approvedBy = [];
+        if (a.qmApproved) approvedBy.push("QM");
+        if (a.mocApproved) approvedBy.push("MoC");
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${i}</td>
+          <td>${a.creator}</td>
+          <td>${a.metadataURI}</td>
+          <td>${approvedBy.join(", ")}</td>`;
+        approvedBody.appendChild(row);
+      }
+
+      /* -------- Rejected -------- */
+      if (isRejected) {
+        const rejectedBy = [];
+        let reason = "";
+
+        if (a.qmRejected) {
+          rejectedBy.push("QM");
+          reason = a.qmRejectReason;
+        }
+        if (a.mocRejected) {
+          rejectedBy.push("MoC");
+          reason = a.mocRejectReason;
+        }
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${i}</td>
+          <td>${a.creator}</td>
+          <td>${a.metadataURI}</td>
+          <td>${rejectedBy.join(", ")}</td>
+          <td>${reason}</td>`;
+        rejectedBody.appendChild(row);
+      }
+    }
+
+    setStatus("Review tables updated.", "connected");
+  } catch (e) {
+    console.error(e);
+    setStatus("Failed loading tables.", "error");
+  }
+}
+
+
+async function approve(id) {
+  try {
+    setStatus(`Approving #${id}…`);
+    const tx = await registry.approve(id);
+    await tx.wait();
+    setStatus(`Approved #${id}.`, "connected");
+    await loadPending();
+    if (role !== "creator") return;
+    await refreshCreatorView();
+  } catch (e) {
+    console.error(e);
+    setStatus("Approve failed.", "error");
+  }
+}
+
+async function reject(id) {
+  try {
+    const reason = prompt("Enter reason for rejection:");
+    if (!reason) return;
+
+    setStatus(`Rejecting #${id}…`);
+    const tx = await registry.reject(id, reason);
+    await tx.wait();
+    setStatus(`Rejected #${id}.`, "connected");
+    await loadPending();
+    if (role !== "creator") return;
+    await refreshCreatorView();
+  } catch (e) {
+    console.error(e);
+    setStatus("Reject failed.", "error");
+  }
+}
 </script>
 
+</script>
 </body>
 </html>
