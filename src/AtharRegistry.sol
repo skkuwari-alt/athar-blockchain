@@ -41,6 +41,8 @@ contract AtharRegistry is AccessControl, Pausable {
 
     // ----- Register -----
     function register(string calldata metadataURI) external whenNotPaused returns (uint256 id) {
+        require(bytes(metadataURI).length != 0, "metadataURI cannot be empty");
+        if (registeredMetadata[metadataURI]) revert AlreadyRegistered();
         id = nextId++;
         artifacts[id] = Artifact({
             creator: msg.sender,

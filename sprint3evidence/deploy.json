@@ -1,0 +1,9 @@
+{
+    "chain": "Sepolia Testnet",
+    "registryAddress": "0x5D7dd7746a05F3B36f0f5e53D690C3Ccfc5eB3cE",
+    "licenseAddress": "0x227D8e261f7F1D1a549F790c37e41e74d28A8D50",
+    "creationTx": "0xf6f55054cad8266e543136537bd07b8e37553b49829f8d7f186f4c05bb93f8ae",
+    "deployBlock": 9585937,
+    "compiler": "Solc 0.8.30",
+    "etherscanLink": "https://sepolia.etherscan.io/tx/0xf6f55054cad8266e543136537bd07b8e37553b49829f8d7f186f4c05bb93f8ae"
+  }
