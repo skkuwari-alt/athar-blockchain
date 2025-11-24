@@ -1,0 +1,41 @@
+No files changed, compilation skipped
+
+Ran 1 test for test/Dummy.t.sol:DummyTest
+[PASS] test_dummy() (gas: 300)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 3.60ms (398.13µs CPU time)
+
+Ran 3 tests for test/FailurePath.t.sol:FailurePathTest
+[PASS] test_RevertWhen_DuplicateRegistration() (gas: 162134)
+[PASS] test_RevertWhen_RegisterWithEmptyMetadata() (gas: 15399)
+[PASS] test_RevertWhen_SetAttestThresholdByNonAdmin() (gas: 14535)
+Suite result: ok. 3 passed; 0 failed; 0 skipped; finished in 4.77ms (631.54µs CPU time)
+
+Ran 20 tests for test/AtharRegistry.t.sol:AtharRegistryTest
+[PASS] test_Approve_ByMocValidatorSetsFlags() (gas: 177785)
+[PASS] test_Approve_ByQmValidatorSetsFlags() (gas: 175391)
+[PASS] test_Approve_NonExistingIdReverts() (gas: 16640)
+[PASS] test_Approve_NonValidatorReverts() (gas: 165746)
+[PASS] test_Constructor_SetsAdminOperatorAndThreshold() (gas: 18809)
+[PASS] test_IsFullyApproved_FalseWhenNotExists() (gas: 8633)
+[PASS] test_IsFullyApproved_RequiresBothApprovals() (gas: 184115)
+[PASS] test_IsFullyApproved_TurnsFalseAfterReject() (gas: 209997)
+[PASS] test_Register_DuplicateUriReverts() (gas: 158900)
+[PASS] test_Register_EmptyUriReverts() (gas: 11987)
+[PASS] test_Register_HappyPath() (gas: 167294)
+[PASS] test_Register_IncrementsIds() (gas: 278030)
+[PASS] test_Reject_ByMocValidatorSetsFlagsAndReason() (gas: 201539)
+[PASS] test_Reject_ByQmValidatorSetsFlagsAndReason() (gas: 199192)
+[PASS] test_Reject_NonExistingIdReverts() (gas: 17107)
+[PASS] test_Reject_NonValidatorReverts() (gas: 166235)
+[PASS] test_SetAttestThreshold_AboveTwoReverts() (gas: 11571)
+[PASS] test_SetAttestThreshold_HappyPath() (gas: 14786)
+[PASS] test_SetAttestThreshold_NonAdminReverts() (gas: 14277)
+[PASS] test_SetAttestThreshold_ZeroReverts() (gas: 11605)
+Suite result: ok. 20 passed; 0 failed; 0 skipped; finished in 4.80ms (10.51ms CPU time)
+
+Ran 2 tests for test/Counter.t.sol:CounterTest
+[PASS] testFuzz_SetNumber(uint256) (runs: 256, μ: 28667, ~: 29289)
+[PASS] test_Increment() (gas: 28783)
+Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 7.41ms (4.17ms CPU time)
+
+Ran 4 test suites in 199.24ms (20.57ms CPU time): 26 tests passed, 0 failed, 0 skipped (26 total tests)

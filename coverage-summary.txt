@@ -1,0 +1,84 @@
+Compiling 37 files with Solc 0.8.30
+Solc 0.8.30 finished in 534.51ms
+Compiler run successful with warnings:
+Warning (3420): Source file does not specify required compiler version! Consider adding "pragma solidity ^0.8.30;"
+--> test/AtharLicense.t.sol
+
+Warning (2018): Function state mutability can be restricted to view
+  --> test/AtharRegistry.t.sol:28:5:
+   |
+28 |     function test_Constructor_SetsAdminOperatorAndThreshold() public {
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Warning (2018): Function state mutability can be restricted to view
+   --> test/AtharRegistry.t.sol:268:5:
+    |
+268 |     function test_IsFullyApproved_FalseWhenNotExists() public {
+    |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Warning (2018): Function state mutability can be restricted to pure
+ --> test/Dummy.t.sol:7:5:
+  |
+7 |     function test_dummy() public {
+  |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Analysing contracts...
+Running tests...
+
+Ran 1 test for test/Dummy.t.sol:DummyTest
+[PASS] test_dummy() (gas: 300)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 2.82ms (465.96µs CPU time)
+
+Ran 3 tests for test/FailurePath.t.sol:FailurePathTest
+[PASS] test_RevertWhen_DuplicateRegistration() (gas: 162134)
+[PASS] test_RevertWhen_RegisterWithEmptyMetadata() (gas: 15399)
+[PASS] test_RevertWhen_SetAttestThresholdByNonAdmin() (gas: 14535)
+Suite result: ok. 3 passed; 0 failed; 0 skipped; finished in 5.08ms (1.74ms CPU time)
+
+Ran 20 tests for test/AtharRegistry.t.sol:AtharRegistryTest
+[PASS] test_Approve_ByMocValidatorSetsFlags() (gas: 177785)
+[PASS] test_Approve_ByQmValidatorSetsFlags() (gas: 175391)
+[PASS] test_Approve_NonExistingIdReverts() (gas: 16640)
+[PASS] test_Approve_NonValidatorReverts() (gas: 165746)
+[PASS] test_Constructor_SetsAdminOperatorAndThreshold() (gas: 18809)
+[PASS] test_IsFullyApproved_FalseWhenNotExists() (gas: 8633)
+[PASS] test_IsFullyApproved_RequiresBothApprovals() (gas: 184115)
+[PASS] test_IsFullyApproved_TurnsFalseAfterReject() (gas: 209997)
+[PASS] test_Register_DuplicateUriReverts() (gas: 158900)
+[PASS] test_Register_EmptyUriReverts() (gas: 11987)
+[PASS] test_Register_HappyPath() (gas: 167294)
+[PASS] test_Register_IncrementsIds() (gas: 278030)
+[PASS] test_Reject_ByMocValidatorSetsFlagsAndReason() (gas: 201539)
+[PASS] test_Reject_ByQmValidatorSetsFlagsAndReason() (gas: 199192)
+[PASS] test_Reject_NonExistingIdReverts() (gas: 17107)
+[PASS] test_Reject_NonValidatorReverts() (gas: 166235)
+[PASS] test_SetAttestThreshold_AboveTwoReverts() (gas: 11571)
+[PASS] test_SetAttestThreshold_HappyPath() (gas: 14786)
+[PASS] test_SetAttestThreshold_NonAdminReverts() (gas: 14277)
+[PASS] test_SetAttestThreshold_ZeroReverts() (gas: 11605)
+Suite result: ok. 20 passed; 0 failed; 0 skipped; finished in 5.11ms (19.39ms CPU time)
+
+Ran 2 tests for test/Counter.t.sol:CounterTest
+[PASS] testFuzz_SetNumber(uint256) (runs: 256, μ: 28667, ~: 29289)
+[PASS] test_Increment() (gas: 28783)
+Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 8.78ms (6.30ms CPU time)
+
+Ran 4 test suites in 202.65ms (21.79ms CPU time): 26 tests passed, 0 failed, 0 skipped (26 total tests)
+
+╭--------------------------+-----------------+-----------------+-----------------+---------------╮
+| File                     | % Lines         | % Statements    | % Branches      | % Funcs       |
++================================================================================================+
+| script/Counter.s.sol     | 0.00% (0/5)     | 0.00% (0/3)     | 100.00% (0/0)   | 0.00% (0/2)   |
+|--------------------------+-----------------+-----------------+-----------------+---------------|
+| script/DeployAthar.s.sol | 0.00% (0/17)    | 0.00% (0/22)    | 100.00% (0/0)   | 0.00% (0/1)   |
+|--------------------------+-----------------+-----------------+-----------------+---------------|
+| script/HappyPath.s.sol   | 0.00% (0/20)    | 0.00% (0/19)    | 100.00% (0/0)   | 0.00% (0/2)   |
+|--------------------------+-----------------+-----------------+-----------------+---------------|
+| src/AtharLicense.sol     | 6.67% (2/30)    | 2.63% (1/38)    | 0.00% (0/6)     | 20.00% (1/5)  |
+|--------------------------+-----------------+-----------------+-----------------+---------------|
+| src/AtharRegistry.sol    | 100.00% (44/44) | 100.00% (42/42) | 100.00% (16/16) | 100.00% (6/6) |
+|--------------------------+-----------------+-----------------+-----------------+---------------|
+| src/Counter.sol          | 100.00% (4/4)   | 100.00% (2/2)   | 100.00% (0/0)   | 100.00% (2/2) |
+|--------------------------+-----------------+-----------------+-----------------+---------------|
+| Total                    | 41.67% (50/120) | 35.71% (45/126) | 72.73% (16/22)  | 50.00% (9/18) |
+╰--------------------------+-----------------+-----------------+-----------------+---------------╯
