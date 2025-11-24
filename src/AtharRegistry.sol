@@ -11,6 +11,9 @@ contract AtharRegistry is AccessControl, Pausable {
 
      error AlreadyRegistered();
      error InvalidThreshold();
+     error EmptyMetadata();
+     error NotRegistered();
+     error NotAuthorizedValidator();
 
     struct Artifact {
         address creator;
@@ -32,7 +35,7 @@ contract AtharRegistry is AccessControl, Pausable {
 
     uint256 public nextId;
     mapping(uint256 => Artifact) public artifacts;
-    mapping(string => bool) public registeredMetadata;
+    mapping(bytes32=> bool) public registeredMetadata;  // changed this line for gas optimization 
 
     // Number of approvals required for an artifact to be considered fully approved, With QM + MOC we currently have a max of 2.
     uint256 public attestThreshold;
@@ -57,8 +60,11 @@ contract AtharRegistry is AccessControl, Pausable {
 
     // ----- Register -----
     function register(string calldata metadataURI) external whenNotPaused returns (uint256 id) {
-        require(bytes(metadataURI).length != 0, "metadataURI cannot be empty");
-        if (registeredMetadata[metadataURI]) revert AlreadyRegistered();
+        if (bytes(metadataURI).length == 0) revert EmptyMetadata(); 
+        bytes32 uriHash = keccak256(bytes(metadataURI));
+
+        if (registeredMetadata[uriHash]) revert AlreadyRegistered();
+            // the above two lines were also changed during gas optimization 
         id = nextId++;
         artifacts[id] = Artifact({
             creator: msg.sender,
@@ -72,14 +78,14 @@ contract AtharRegistry is AccessControl, Pausable {
             mocRejectReason: "",
             createdAt: block.timestamp
         });
-        registeredMetadata[metadataURI] = true;
+        registeredMetadata[uriHash] = true; // this line got chnage during gas optimization 
         emit Registered(id, msg.sender, metadataURI);
     }
 
     // ----- Approvals -----
     function approve(uint256 id) external whenNotPaused {
         Artifact storage a = artifacts[id];
-        require(a.exists, "Not registered");
+        if (!a.exists) revert NotRegistered(); // changed for gas optimization 
 
         if (hasRole(QM_VALIDATOR, msg.sender)) {
             a.qmApproved = true;
@@ -92,14 +98,14 @@ contract AtharRegistry is AccessControl, Pausable {
             emit Approved(id, msg.sender, "Ministry of Culture");
         } 
         else {
-            revert("Not authorized validator");
+            revert NotAuthorizedValidator(); // changed for gas optimization 
         }
     }
 
     // ----- Reject -----
     function reject(uint256 id, string calldata reason) external whenNotPaused {
         Artifact storage a = artifacts[id];
-        require(a.exists, "Not registered");
+        if (!a.exists) revert NotRegistered();
 
         if (hasRole(QM_VALIDATOR, msg.sender)) {
             a.qmRejected = true;
@@ -116,7 +122,7 @@ contract AtharRegistry is AccessControl, Pausable {
             emit Rejected(id, msg.sender, "Ministry of Culture", reason);
         } 
         else {
-            revert("Not authorized validator");
+            revert NotAuthorizedValidator();
         }
     }
 

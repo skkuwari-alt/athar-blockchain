@@ -106,7 +106,7 @@ contract AtharRegistryTest is Test {
     }
 
     function test_Register_EmptyUriReverts() public {
-        vm.expectRevert(bytes("metadataURI cannot be empty"));
+        vm.expectRevert(AtharRegistry.EmptyMetadata.selector);
         registry.register("");
     }
 
@@ -177,13 +177,13 @@ contract AtharRegistryTest is Test {
         uint256 id = registry.register("ipfs://c");
 
         vm.prank(stranger);
-        vm.expectRevert(bytes("Not authorized validator"));
+        vm.expectRevert(AtharRegistry.NotAuthorizedValidator.selector); 
         registry.approve(id);
     }
 
     function test_Approve_NonExistingIdReverts() public {
         vm.prank(qmValidator);
-        vm.expectRevert(bytes("Not registered"));
+        vm.expectRevert(AtharRegistry.NotRegistered.selector);
         registry.approve(999);
     }
 
@@ -251,13 +251,13 @@ contract AtharRegistryTest is Test {
         uint256 id = registry.register("ipfs://f");
 
         vm.prank(stranger);
-        vm.expectRevert(bytes("Not authorized validator"));
+        vm.expectRevert(AtharRegistry.NotAuthorizedValidator.selector);
         registry.reject(id, "nope");
     }
 
     function test_Reject_NonExistingIdReverts() public {
         vm.prank(qmValidator);
-        vm.expectRevert(bytes("Not registered"));
+        vm.expectRevert(AtharRegistry.NotRegistered.selector);
         registry.reject(999, "nope");
     }
 
